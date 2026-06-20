@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pendaftaran & Sertifikat Seminar - HMJ IPII</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #eceff1 0%, #cfd8dc 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .form-container {
+      background-color: white;
+      width: 100%;
+      max-width: 500px;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      transition: all 0.3s ease;
+      padding: 35px 25px;
+    }
+
+    .header-section {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header-section h2 {
+      color: #1a237e;
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #607d8b;
+      font-size: 14px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    .input-group label {
+      display: block;
+      font-weight: 600;
+      color: #37474f;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #cfd8dc;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #1a237e;
+    }
+
+    .btn-submit {
+      width: 100%;
+      padding: 14px;
+      background-color: #1a237e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(26, 35, 126, 0.2);
+      transition: background-color 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+      background-color: #0d1b60;
+    }
+
+    .btn-submit:disabled {
+      background-color: #90a4ae;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-container">
+    
+    <div class="header-section">
+      <h2>Seminar Nasional HMJ IPII</h2>
+      <p class="subtitle">Isi data diri Anda dengan benar untuk menerima sertifikat</p>
+    </div>
+
+    <form id="pendaftaranForm" action="https://script.google.com/macros/s/AKfycbyzJNf4emwiF_lR4mZqJPTzXjZVOKzlYnjExREfs7rIox_6tGx5MPEKAy4yyMMwuCvvZw/exec" method="POST">
+      
+      <div class="input-group">
+        <label for="nama">Nama Lengkap (Beserta Gelar)</label>
+        <input type="text" id="nama" name="nama" placeholder="Contoh: Ahmad Fauzi, S.Kom." required>
+      </div>
+
+      <div class="input-group">
+        <label for="email">Alamat Email Aktif</label>
+        <input type="email" id="email" name="email" placeholder="Contoh: ahmad@gmail.com" required>
+      </div>
+
+      <div class="input-group">
+        <label for="no_hp">Nomor HP / WhatsApp</label>
+        <input type="tel" id="no_hp" name="no_hp" placeholder="Contoh: 08123456789" required>
+      </div>
+
+      <button type="submit" class="btn-submit">Daftar & Kirim Sertifikat</button>
+    </form>
+
+  </div>
+
+  <script>
+    const form = document.getElementById('pendaftaranForm');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const submitBtn = form.querySelector('.btn-submit');
+      const textAwal = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = 'Memproses Pendaftaran & Sertifikat...';
+
+      const formData = new FormData(form);
+      
+      fetch(form.action, {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.status === "Sukses") {
+          document.querySelector('.form-container').innerHTML = `
+            <div style="text-align: center; padding: 20px 0;">
+              <div style="font-size: 60px; margin-bottom: 20px;">✅</div>
+              <h2 style="color: #2e7d32; margin-bottom: 12px;">Pendaftaran Berhasil!</h2>
+              <p style="color: #546e7a; margin-bottom: 30px; font-size: 15px; line-height: 1.5;">
+                Data Anda telah aman tersimpan. File PDF sertifikat resmi Anda juga telah otomatis dikirimkan ke alamat email Anda.
+              </p>
+              
+              <a href="${data.downloadUrl}" target="_blank" style="display: inline-block; background: #007bff; color: white; padding: 14px 30px; text-decoration: none; border-radius: 30px; font-weight: bold; box-shadow: 0 4px 14px rgba(0,123,255,0.4); margin-bottom: 20px; font-size: 16px;">
+                📥 Unduh Sertifikat Langsung
+              </a>
+              <br>
+              <small style="color: #90a4ae; display: block; font-size: 12px;">
+                Jika unduhan tidak berjalan, silakan klik tombol di atas atau periksa folder masuk/spam pada email Anda.
+              </small>
+            </div>
+          `;
+        } else {
+          alert("Terjadi kesalahan sistem: " + data.message);
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = textAwal;
+        }
+      })
+      .catch(error => {
+        alert("Gagal mengirim data. Pastikan tautan Apps Script benar dan internet Anda aktif.");
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = textAwal;
+      });
+    });
+  </script>
+</body>
+</html>
